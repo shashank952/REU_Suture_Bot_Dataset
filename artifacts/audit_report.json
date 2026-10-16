@@ -1,0 +1,200 @@
+{
+  "dataset": "SutureBot2 (ex-vivo, two operators, dVRK Si)",
+  "clinical_caveat": "SutureBot2 is a proof-of-concept robotic, ex-vivo wound-closure dataset. Scores shown here are either expert-defined (future work) or a derived geometric-consistency proxy; they are NOT a validated clinical outcome and do NOT rate a human dermatologist's performance.",
+  "counts": {
+    "frames_total": 853,
+    "frames_with_mask": 777,
+    "frames_with_bbox": 777,
+    "frames_annotated": 777,
+    "frames_empty_bbox_negative": 307,
+    "stitch_instances": 919,
+    "frames_missing_mask": 76
+  },
+  "invalid_bbox_reasons": {
+    "": 853
+  },
+  "stitch_instances_by_batch": {
+    "lerobot_jesse_batch_0": 671,
+    "lerobot_jesse_batch_1": 70,
+    "lerobot_jesse_batch_2": 62,
+    "lerobot_fausto_batch_1": 61,
+    "lerobot_fausto_batch_0": 55
+  },
+  "frames_by_batch": {
+    "lerobot_jesse_batch_0": 661,
+    "lerobot_jesse_batch_1": 63,
+    "lerobot_fausto_batch_0": 51,
+    "lerobot_jesse_batch_2": 46,
+    "lerobot_fausto_batch_1": 32
+  },
+  "duplicate_stitch_ids": [],
+  "missing_mask_examples": [
+    "lerobot_fausto_batch_1__ep4__f1144",
+    "lerobot_fausto_batch_1__ep4__f2289",
+    "lerobot_fausto_batch_1__ep5__f7979",
+    "lerobot_fausto_batch_1__ep6__f3970",
+    "lerobot_jesse_batch_0__ep100__f3217",
+    "lerobot_jesse_batch_0__ep103__f7769",
+    "lerobot_jesse_batch_0__ep115__f5660",
+    "lerobot_jesse_batch_0__ep117__f3228",
+    "lerobot_jesse_batch_0__ep11__f3563",
+    "lerobot_jesse_batch_0__ep12__f2633",
+    "lerobot_jesse_batch_0__ep137__f2426",
+    "lerobot_jesse_batch_0__ep13__f3492",
+    "lerobot_jesse_batch_0__ep146__f3068",
+    "lerobot_jesse_batch_0__ep14__f4393",
+    "lerobot_jesse_batch_0__ep153__f903",
+    "lerobot_jesse_batch_0__ep158__f2115",
+    "lerobot_jesse_batch_0__ep159__f1946",
+    "lerobot_jesse_batch_0__ep165__f4251",
+    "lerobot_jesse_batch_0__ep1__f1630",
+    "lerobot_jesse_batch_0__ep1__f815"
+  ],
+  "proxy_thresholds": [
+    0.7335106403402853,
+    0.7722508276393267,
+    0.8027509229808757,
+    0.8401569763778258
+  ],
+  "proxy_score_distribution": {
+    "5": 220,
+    "4": 188,
+    "1": 185,
+    "3": 169,
+    "2": 157
+  },
+  "proxy_score_by_batch": {
+    "lerobot_fausto_batch_0": {
+      "1": 12,
+      "2": 13,
+      "3": 8,
+      "4": 11,
+      "5": 11
+    },
+    "lerobot_fausto_batch_1": {
+      "1": 3,
+      "2": 5,
+      "3": 7,
+      "4": 15,
+      "5": 31
+    },
+    "lerobot_jesse_batch_0": {
+      "1": 152,
+      "2": 114,
+      "3": 126,
+      "4": 130,
+      "5": 149
+    },
+    "lerobot_jesse_batch_1": {
+      "1": 10,
+      "2": 14,
+      "3": 14,
+      "4": 14,
+      "5": 18
+    },
+    "lerobot_jesse_batch_2": {
+      "1": 8,
+      "2": 11,
+      "3": 14,
+      "4": 18,
+      "5": 11
+    }
+  },
+  "proxy_score_continuous_summary": {
+    "mean": 0.7834562582627764,
+    "std": 0.09852311393109543,
+    "min": 0.13453617012802005,
+    "max": 0.9832373597081651
+  },
+  "split_sizes": {
+    "train": 561,
+    "test": 215,
+    "val": 143
+  },
+  "split_by_batch": {
+    "test": {
+      "lerobot_fausto_batch_0": 4,
+      "lerobot_fausto_batch_1": 33,
+      "lerobot_jesse_batch_0": 154,
+      "lerobot_jesse_batch_1": 18,
+      "lerobot_jesse_batch_2": 6
+    },
+    "train": {
+      "lerobot_fausto_batch_0": 39,
+      "lerobot_fausto_batch_1": 21,
+      "lerobot_jesse_batch_0": 413,
+      "lerobot_jesse_batch_1": 32,
+      "lerobot_jesse_batch_2": 56
+    },
+    "val": {
+      "lerobot_fausto_batch_0": 12,
+      "lerobot_fausto_batch_1": 7,
+      "lerobot_jesse_batch_0": 104,
+      "lerobot_jesse_batch_1": 20,
+      "lerobot_jesse_batch_2": 0
+    }
+  },
+  "geometry_feature_nan_fraction": {
+    "bbox_w": 0.0,
+    "bbox_h": 0.0,
+    "bbox_area": 0.0,
+    "bbox_aspect": 0.0,
+    "cx": 0.0,
+    "cy": 0.0,
+    "cx_norm": 0.0,
+    "cy_norm": 0.0,
+    "wound_area": 0.0,
+    "wound_cx": 0.0,
+    "wound_cy": 0.0,
+    "wound_w": 0.0,
+    "wound_h": 0.0,
+    "wound_scale": 0.0,
+    "wound_diag": 0.0,
+    "wound_axis_angle_deg": 0.0,
+    "dist_center_to_wound_centroid_norm": 0.0,
+    "dist_center_to_wound_boundary_norm": 0.0,
+    "center_inside_wound": 0.0,
+    "bbox_wound_overlap_ratio": 0.0,
+    "n_stitches_in_frame": 0.0,
+    "nn_dist": 0.22850924918389554,
+    "nn_dist_norm": 0.22850924918389554,
+    "spacing_cv": 0.22850924918389554,
+    "ie_available": 0.0,
+    "ie_length": 0.0,
+    "ie_length_norm": 0.0,
+    "ie_mid_dist_norm": 0.0,
+    "ie_crossing_score": 0.0,
+    "ie_angle_diff_deg": 0.0
+  },
+  "folder_checks": {
+    "data_root": true,
+    "annotation_images": true,
+    "masks": true,
+    "stitch_bboxes": true,
+    "manifest_csv": true,
+    "batch/lerobot_fausto_batch_0": true,
+    "batch/lerobot_fausto_batch_1": true,
+    "batch/lerobot_jesse_batch_0": true,
+    "batch/lerobot_jesse_batch_1": true,
+    "batch/lerobot_jesse_batch_2": true,
+    "batch/lerobot_wound_closure_dagger_01": true,
+    "batch/lerobot_wound_closure_dagger_02": true,
+    "batch/lerobot_wound_closure_dagger_03": true,
+    "batch/lerobot_wound_closure_dagger_04": true,
+    "batch/lerobot_wound_closure_dagger_05": true
+  },
+  "leakage_check": {
+    "is_leaked": false,
+    "n_groups": 205,
+    "n_leaked_groups": 0,
+    "leaked_groups": [],
+    "n_instances_per_split": {
+      "train": 561,
+      "test": 215,
+      "val": 143
+    }
+  },
+  "n_action_labels": 5248,
+  "n_insertion_exit_rows": 558,
+  "insertion_exit_skipped_lines": 1
+}

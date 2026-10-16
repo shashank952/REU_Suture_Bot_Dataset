@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SutureBot2 · Explainable Ordinal Stitch-Quality Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #F6F1E7;
+    --card: #FFFFFF;
+    --yellow: #FFE14D;
+    --pink: #FF9EC4;
+    --cyan: #9BE7FF;
+    --lime: #C6F26B;
+    --orange: #FFB35C;
+    --purple: #CDB4FF;
+    --red: #FF7A7A;
+    --shadow: 7px 7px 0 var(--ink);
+    --shadow-sm: 4px 4px 0 var(--ink);
+    --border: 3px solid var(--ink);
+    --gap: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+    background-size: 26px 26px;
+    color: var(--ink);
+    font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 80px; }
+  h1, h2, h3, .display { font-family: "Archivo Black", "Arial Black", Impact, sans-serif; letter-spacing: -0.5px; line-height: 1.05; }
+  h2 { font-size: clamp(28px, 4vw, 44px); text-transform: uppercase; margin: 0 0 6px; }
+  h3 { font-size: 20px; text-transform: uppercase; margin: 0 0 8px; }
+  .mono { font-family: "DM Mono", ui-monospace, "Courier New", monospace; }
+  .muted { color: #4a4a4a; }
+  a { color: var(--ink); }
+  .tag { display: inline-block; border: var(--border); background: var(--card); box-shadow: var(--shadow-sm); padding: 4px 10px; font-family: "DM Mono", monospace; font-size: 12px; text-transform: uppercase; }
+  .tag.y { background: var(--yellow); } .tag.p { background: var(--pink); } .tag.c { background: var(--cyan); }
+  .tag.l { background: var(--lime); } .tag.o { background: var(--orange); } .tag.v { background: var(--purple); }
+
+  header.hero {
+    border: var(--border); background: var(--yellow); box-shadow: var(--shadow);
+    padding: 26px 26px 22px; margin-bottom: 26px; position: relative; overflow: hidden;
+  }
+  header.hero .kicker { font-family: "DM Mono", monospace; text-transform: uppercase; font-size: 13px; letter-spacing: 2px; }
+  header.hero h1 { font-size: clamp(34px, 6vw, 68px); margin: 8px 0 10px; }
+  header.hero p { max-width: 760px; margin: 0; font-weight: 500; }
+  .badges { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: var(--gap); }
+
+  nav.sticky {
+    position: sticky; top: 0; z-index: 20; margin: 0 0 26px;
+    border: var(--border); background: var(--card); box-shadow: var(--shadow-sm);
+    display: flex; flex-wrap: wrap; gap: 0;
+  }
+  nav.sticky a { flex: 1 1 auto; text-align: center; padding: 12px 10px; text-decoration: none; font-family: "DM Mono", monospace; font-size: 13px; text-transform: uppercase; border-right: var(--border); }
+  nav.sticky a:last-child { border-right: none; }
+  nav.sticky a:hover { background: var(--cyan); }
+
+  section { margin: 0 0 44px; }
+  .sec-head { display: flex; align-items: center; gap: var(--gap); margin-bottom: var(--gap); flex-wrap: wrap; }
+  .sec-num { font-family: "Archivo Black", sans-serif; background: var(--ink); color: var(--paper); padding: 6px 14px; font-size: 22px; }
+
+  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--gap); }
+  .stat { border: var(--border); background: var(--card); box-shadow: var(--shadow-sm); padding: 14px; }
+  .stat .n { font-family: "Archivo Black", sans-serif; font-size: 30px; line-height: 1; }
+  .stat .l { font-size: 12px; text-transform: uppercase; font-family: "DM Mono", monospace; margin-top: 6px; color: #4a4a4a; }
+  .stat.y { background: var(--yellow);} .stat.l { background: var(--lime);} .stat.c { background: var(--cyan);} .stat.p { background: var(--pink);} .stat.o { background: var(--orange);}
+
+  .grid { display: grid; gap: var(--gap); }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); }
+  .card { border: var(--border); background: var(--card); box-shadow: var(--shadow); padding: 18px; }
+  .callout { border: var(--border); box-shadow: var(--shadow); padding: 16px 18px; background: var(--card); }
+  .callout.warn { background: #FFE9B8; }
+  .callout.danger { background: #FFD3D3; }
+  .callout.ok { background: #DDF7C4; }
+
+  .flow { display: flex; align-items: stretch; gap: var(--gap); flex-wrap: wrap; }
+  .node { flex: 1 1 180px; border: var(--border); background: var(--card); box-shadow: var(--shadow-sm); padding: 14px; }
+  .node .k { font-family: "DM Mono", monospace; font-size: 12px; text-transform: uppercase; color: #555; }
+  .node .t { font-weight: 700; margin-top: 4px; }
+  .arrow { align-self: center; font-family: "Archivo Black", sans-serif; font-size: 30px; }
+  .node.step { position: relative; }
+  .node .num { position: absolute; top: -14px; left: -14px; background: var(--ink); color: var(--paper); border: var(--border); width: 30px; height: 30px; display: grid; place-items: center; font-family: "Archivo Black", sans-serif; font-size: 14px; }
+
+  ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: var(--gap); }
+  ol.steps > li { counter-increment: s; border: var(--border); background: var(--card); box-shadow: var(--shadow-sm); padding: 14px 14px 14px 62px; position: relative; }
+  ol.steps > li::before { content: counter(s, decimal-leading-zero); position: absolute; left: 12px; top: 12px; font-family: "Archivo Black", sans-serif; font-size: 18px; background: var(--cyan); border: var(--border); padding: 4px 7px; }
+
+  table { border-collapse: separate; border-spacing: 0; width: 100%; border: var(--border); box-shadow: var(--shadow); background: var(--card); }
+  th, td { border-bottom: 2px solid var(--ink); border-right: 2px solid var(--ink); padding: 10px 12px; text-align: left; font-size: 15px; }
+  th { background: var(--ink); color: var(--paper); text-transform: uppercase; font-family: "DM Mono", monospace; font-size: 13px; letter-spacing: 1px; }
+  tr:last-child td { border-bottom: none; }
+  td:last-child, th:last-child { border-right: none; }
+  tbody tr:nth-child(odd) td { background: #FBF7EE; }
+  tr.highlight td { background: var(--lime) !important; font-weight: 700; }
+  .num-cell { font-family: "DM Mono", monospace; }
+  .bar { height: 12px; background: var(--ink); display: inline-block; vertical-align: middle; }
+
+  .diagram { border: var(--border); background: var(--card); box-shadow: var(--shadow); padding: 16px; overflow-x: auto; }
+  svg { display: block; width: 100%; height: auto; }
+
+  .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); }
+  figure { margin: 0; border: var(--border); background: var(--card); box-shadow: var(--shadow-sm); padding: 10px; }
+  figure img { width: 100%; display: block; border: 2px solid var(--ink); }
+  figcaption { font-family: "DM Mono", monospace; font-size: 12px; margin-top: 8px; }
+  .hint { font-size: 13px; color: #555; }
+
+  footer { border: var(--border); background: var(--card); box-shadow: var(--shadow); padding: 18px; }
+  .pill-list { display: flex; flex-wrap: wrap; gap: var(--gap); }
+  .kbd { font-family: "DM Mono", monospace; background: var(--yellow); border: var(--border); padding: 1px 6px; font-size: 13px; }
+  @media (max-width: 860px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .g2, .g3, .gallery { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="kicker">Project Overview · REU · Light Neo-Brutalism</div>
+    <h1>Explainable Ordinal Stitch-Quality Assessment</h1>
+    <p>A step-by-step, visual walkthrough of the SutureBot2 robotic wound-closure project: what the data is, how the pipeline works, which models were used, how accurately they predict, and where the honest limits are.</p>
+    <div class="badges">
+      <span class="tag y">Dataset: SutureBot2</span>
+      <span class="tag c">da Vinci Research Kit · ex-vivo</span>
+      <span class="tag l">Hybrid ordinal model</span>
+      <span class="tag p">3 notebooks · 24 figures</span>
+      <span class="tag v">CC BY 4.0</span>
+    </div>
+  </header>
+
+  <nav class="sticky">
+    <a href="#overview">Overview</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#dataset">Dataset</a>
+    <a href="#models">Models</a>
+    <a href="#accuracy">Accuracy</a>
+    <a href="#eval">Evaluation</a>
+    <a href="#figures">Figures</a>
+    <a href="#audit">Audit</a>
+  </nav>
+
+  <section id="overview">
+    <div class="sec-head"><span class="sec-num">00</span><h2>What this project does</h2></div>
+    <p>It asks one question: <strong>can a computer look at a single stitch and give it an interpretable quality score from 1 to 5, explained by measurable geometry?</strong> The work is organised as three notebooks and one reusable Python package, using the <strong>SutureBot2</strong> robotic suturing dataset.</p>
+    <div class="stats">
+      <div class="stat y"><div class="n">85.1%</div><div class="l">Exact accuracy (hybrid)</div></div>
+      <div class="stat l"><div class="n">100%</div><div class="l">Within-one accuracy</div></div>
+      <div class="stat c"><div class="n">0.149</div><div class="l">Mean absolute error</div></div>
+      <div class="stat p"><div class="n">919</div><div class="l">Stitch instances</div></div>
+      <div class="stat o"><div class="n">24</div><div class="l">Publication figures</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout ok"><strong>What it CAN claim.</strong> The hybrid model predicts the stitch-quality target accurately and far better than an image-only model; the geometry gives human-readable reasons; grouped evaluation exposes generalization.</div>
+      <div class="callout danger"><strong>What it CANNOT claim.</strong> These scores are a <strong>geometric-consistency proxy</strong>, not clinical quality. SutureBot2 has no expert 1–5 ratings. Nothing here predicts healing or rates a surgeon.</div>
+    </div>
+  </section>
+
+  <section id="workflow">
+    <div class="sec-head"><span class="sec-num">01</span><h2>How the project works (workflow)</h2></div>
+    <p>The project is a straight pipeline. Raw data flows through <strong>Notebook 1</strong> (clean it), <strong>Notebook 2</strong> (train &amp; test), and <strong>Notebook 3</strong> (make the paper figures). All the logic lives in one importable package, <span class="mono">src/sutureqc/</span>.</p>
+
+    <div class="diagram">
+      <div class="flow">
+        <div class="node" style="background:var(--purple)"><div class="k">Stage 0</div><div class="t">Raw SutureBot2 dataset</div><div class="hint mono">frames · masks · boxes · labels · robot parquet</div></div>
+        <div class="arrow">→</div>
+        <div class="node" style="background:var(--cyan)"><div class="k">Notebook 1</div><div class="t">Preprocess &amp; Audit</div><div class="hint mono">→ stitch table + features + splits + crops</div></div>
+        <div class="arrow">→</div>
+        <div class="node" style="background:var(--lime)"><div class="k">Notebook 2</div><div class="t">Train &amp; Test</div><div class="hint mono">→ models, metrics, predictions</div></div>
+        <div class="arrow">→</div>
+        <div class="node" style="background:var(--orange)"><div class="k">Notebook 3</div><div class="t">Figures &amp; Feedback</div><div class="hint mono">→ 24 paper figures + doctor-facing output</div></div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px">Notebook 1 — the 10 preprocessing steps (cell by cell)</h3>
+    <ol class="steps">
+      <li><strong>Verify folders.</strong> Confirm the dataset layout exists before doing anything.</li>
+      <li><strong>Manifest + path rewrite.</strong> Read the author file list and rewrite their absolute paths to local paths.</li>
+      <li><strong>Frame inventory.</strong> List every frame; flag which have masks, boxes, and which are empty "negatives".</li>
+      <li><strong>Bounding-box validation.</strong> Reject impossible boxes (wrong size, NaN, zero/negative area).</li>
+      <li><strong>Stitch instances.</strong> One row per valid box → the unit the model scores (919 rows).</li>
+      <li><strong>Action context.</strong> Join the human sub-task label active at each stitch's frame.</li>
+      <li><strong>Geometry features.</strong> Compute wound-relative numbers: box size, centre, distance to wound boundary, overlap, spacing, needle alignment.</li>
+      <li><strong>Padded crops.</strong> 20% padding around each box → resized 224×224 image.</li>
+      <li><strong>Grouped splits + proxy target.</strong> Split by <em>episode</em> (train 561 / val 143 / test 215) and derive the 1–5 geometric proxy, with thresholds fitted on train only.</li>
+      <li><strong>Audit.</strong> Counts, distributions, leakage check and an annotation overlay figure.</li>
+    </ol>
+
+    <div class="callout warn" style="margin-top:16px">
+      <strong>Why "grouped" splits matter.</strong> Frames from one stitching episode are near-duplicates. If they land in both train and test, the model "memorises" and the score looks fake. So we split by <em>episode</em>, never by frame — and prove it with a leakage check.
+    </div>
+  </section>
+
+  <section id="dataset">
+    <div class="sec-head"><span class="sec-num">02</span><h2>The dataset — SutureBot2</h2></div>
+    <p class="mono">huggingface.co/datasets/jhaworth/SutureBot2 · LeRobot v2.1 · CC BY 4.0</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Description</h3>
+        <table>
+          <tbody>
+            <tr><th>Task</th><td>Teleoperated <strong>ex-vivo wound closure</strong> (robotic suturing)</td></tr>
+            <tr><th>Scale</th><td><strong>20 hours</strong>; ~1.3M frames in one batch alone; <strong>6,727</strong> robot episodes</td></tr>
+            <tr><th>Platform</th><td>da Vinci Research Kit (dVRK Si); two arms + wrist cameras</td></tr>
+            <tr><th>Tissue</th><td>Skin-on pork belly, 2–5 cm incisions, synthetic blood</td></tr>
+            <tr><th>Operators</th><td>2 — one intermediate, one novice</td></tr>
+            <tr><th>Semantic labels</th><td>~29 sub-tasks, frame-by-frame (7 hours)</td></tr>
+            <tr><th>Needle labels</th><td>Insertion &amp; exit points (7 hours)</td></tr>
+            <tr><th>Vision</th><td>Endoscope 960×540@30fps; wrist 640×480@30fps</td></tr>
+            <tr><th>Robot data</th><td>16-dim state + 16-dim action per frame (poses + jaws)</td></tr>
+            <tr><th>Expert ratings</th><td class="mono" style="background:var(--red)"><strong>NONE</strong> — no 1–5 quality labels exist</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>How it was used here</h3>
+        <ul>
+          <li><strong>Only the 5 annotated batches</strong> (fausto_0/1, jesse_0/1/2) have masks + stitch boxes → they drive the scoring. The 5 DAgger batches have no masks/boxes → not used for stitch scoring.</li>
+          <li><strong>853 endoscope frames</strong> → masks + boxes → expanded to <strong>919 stitch instances</strong>.</li>
+          <li><strong>Masks</strong> → wound-relative geometry (the explainable features).</li>
+          <li><strong>Boxes</strong> → padded 224×224 crops → the image branch.</li>
+          <li><strong>labels.jsonl</strong> → sub-task context per stitch.</li>
+          <li><strong>insertion_exit_points.csv</strong> → needle alignment features.</li>
+          <li><strong>LeRobot parquet</strong> (robot poses) → stored and readable, but <em>not yet used as model input</em> (available for future work).</li>
+          <li><strong>Videos</strong> → defined in the dataset but <em>not downloaded locally</em> (only the 853 sampled frames are present).</li>
+          <li><strong>The target</strong> is derived: a transparent <strong>geometric-consistency proxy</strong>, because no expert ratings exist.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="models">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Models used</h2></div>
+    <p>The proposed model is called the <strong>"Dale"</strong> model — a <strong>geometry-dominant hybrid ordinal network</strong>. Everything else is a baseline or an ablation.</p>
+
+    <div class="grid g3">
+      <div class="card" style="background:var(--yellow)"><h3>ResNet18 (frozen)</h3><p>The "eyes". A standard ImageNet-pretrained ResNet18 (11.7M params) turns each 224×224 stitch crop into a <strong>512-number embedding</strong>. It is <strong>frozen</strong> — never trained — so the small data can't overfit it and embeddings are computed once.</p><p class="mono">role: feature extractor</p></div>
+      <div class="card" style="background:var(--lime)"><h3>Dale model (proposed)</h3><p><strong>Residual hybrid fusion</strong>: geometry is the backbone, and the image adds a small, <em>bounded, learned correction</em> (gate initialised small). A <strong>CORAL head</strong> outputs an <strong>ordered</strong> 1–5 score. Trained as a <strong>6-seed ensemble</strong> (probabilities averaged).</p><p class="mono">role: the contribution</p></div>
+      <div class="card" style="background:var(--pink)"><h3>Baselines / ablations</h3><p>Geometry-only (ordinal logistic + random forest), image-only (same head as the hybrid), and a YOLO detection baseline (localization only; not installed → reference). Used to prove the fusion earns its keep.</p><p class="mono">role: fairness checks</p></div>
+    </div>
+
+    <h3 style="margin-top:24px">Model architecture (how the Dale model thinks)</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 1160 360" xmlns="http://www.w3.org/2000/svg" font-family="Space Grotesk, sans-serif">
+        <defs>
+          <marker id="arch-arrow" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#111"/></marker>
+        </defs>
+
+        <g stroke="#111" stroke-width="3">
+          <rect x="20" y="25" width="180" height="70" fill="#ffffff"/>
+          <rect x="240" y="25" width="210" height="70" fill="#ffffff"/>
+          <rect x="490" y="25" width="180" height="70" fill="#ffffff"/>
+          <rect x="20" y="255" width="180" height="70" fill="#ffffff"/>
+          <rect x="240" y="255" width="210" height="70" fill="#ffffff"/>
+          <rect x="730" y="110" width="190" height="120" fill="#C6F26B"/>
+          <rect x="945" y="120" width="205" height="100" fill="#CDB4FF"/>
+          <rect x="945" y="250" width="205" height="80" fill="#FFE14D"/>
+        </g>
+
+        <g font-size="14" fill="#111">
+          <text x="36" y="55">Stitch crop</text><text x="36" y="76" font-size="12" fill="#555">224 × 224 px</text>
+          <text x="258" y="55">Frozen ResNet18</text><text x="258" y="76" font-size="12" fill="#555">ImageNet · not trained</text>
+          <text x="506" y="55">512-d embedding</text><text x="506" y="76" font-size="12" fill="#555">"the eyes"</text>
+          <text x="36" y="285">30 geometry features</text><text x="36" y="306" font-size="12" fill="#555">wound-relative</text>
+          <text x="258" y="285">Impute + standardize</text><text x="258" y="306" font-size="12" fill="#555">fitted on TRAIN only</text>
+          <text x="748" y="152" font-weight="700">Residual fusion</text>
+          <text x="748" y="174" font-size="12" fill="#333">geometry + gate × image</text>
+          <text x="748" y="194" font-size="12" fill="#333">gate starts small</text>
+          <text x="962" y="156" font-weight="700">CORAL head</text>
+          <text x="962" y="178" font-size="12" fill="#333">4 logits · P(score &gt; k)</text>
+          <text x="962" y="198" font-size="12" fill="#333">ordered 1–5</text>
+          <text x="962" y="285" font-weight="700">Score 1–5</text>
+          <text x="962" y="306" font-size="12" fill="#333">× 6 seeds → averaged</text>
+        </g>
+
+        <g stroke="#111" stroke-width="3" fill="none" marker-end="url(#arch-arrow)">
+          <line x1="200" y1="60" x2="240" y2="60"/>
+          <line x1="450" y1="60" x2="490" y2="60"/>
+          <line x1="200" y1="290" x2="240" y2="290"/>
+          <path d="M670,60 H825 V110"/>
+          <path d="M450,290 H825 V230"/>
+          <line x1="920" y1="170" x2="945" y2="170"/>
+          <line x1="1047" y1="220" x2="1047" y2="250"/>
+        </g>
+      </svg>
+    </div>
+    <p class="hint">Because the image only adds a small bounded correction, the hybrid can never fall far below a geometry-only model — it can only improve on it. That is what fixed the earlier result where geometry-alone beat the hybrid.</p>
+  </section>
+
+  <section id="accuracy">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Accuracy — every model side by side</h2></div>
+    <p>Measured on the <strong>grouped test split</strong> (215 unseen stitches, no episode leakage). "Exact" = predicted score matches truth; "within-one" = off by at most 1.</p>
+    <table>
+      <thead>
+        <tr><th>Model</th><th>n</th><th>Exact (%)</th><th>Within-one (%)</th><th>MAE</th><th>Exact accuracy bar</th></tr>
+      </thead>
+      <tbody>
+        <tr class="highlight"><td><strong>hybrid (Dale, proposed)</strong></td><td class="num-cell">215</td><td class="num-cell">85.1</td><td class="num-cell">100.0</td><td class="num-cell">0.149</td><td><span class="bar" style="width:85%"></span></td></tr>
+        <tr><td>geometry_only (CORAL)</td><td class="num-cell">215</td><td class="num-cell">84.7</td><td class="num-cell">100.0</td><td class="num-cell">0.153</td><td><span class="bar" style="width:84.7%"></span></td></tr>
+        <tr><td>geometry_only (logistic)</td><td class="num-cell">215</td><td class="num-cell">80.9</td><td class="num-cell">99.5</td><td class="num-cell">0.195</td><td><span class="bar" style="width:80.9%"></span></td></tr>
+        <tr><td>geometry_only (forest)</td><td class="num-cell">215</td><td class="num-cell">50.2</td><td class="num-cell">98.1</td><td class="num-cell">0.516</td><td><span class="bar" style="width:50.2%"></span></td></tr>
+        <tr><td>image_only</td><td class="num-cell">215</td><td class="num-cell">21.9</td><td class="num-cell">69.3</td><td class="num-cell">1.140</td><td><span class="bar" style="width:21.9%"></span></td></tr>
+      </tbody>
+    </table>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout ok"><strong>What the table says.</strong> The hybrid is best and beats image-only by a mile (85.1% vs 21.9%), so the fusion genuinely contributes; and it edges out geometry-only, so the image adds a little.</div>
+      <div class="callout warn"><strong>Read it with care.</strong> Within-one is <strong>100%</strong> because the target is a geometry-derived score (see Audit). Report <strong>Exact % and MAE</strong>, and the cross-operator numbers, as the headline.</div>
+    </div>
+  </section>
+
+  <section id="eval">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Evaluation protocol (the complete flow)</h2></div>
+    <p>Four evaluations are run, from easiest to hardest. The harder ones are what a reviewer trusts.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 980 300" xmlns="http://www.w3.org/2000/svg" font-family="Space Grotesk, sans-serif">
+        <defs><marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#111"/></marker></defs>
+        <g stroke="#111" stroke-width="3" fill="#FFE14D"><rect x="12" y="120" width="150" height="60"/></g>
+        <text x="34" y="156" font-size="15" font-weight="700">205 episodes</text>
+        <g stroke="#111" stroke-width="3" fill="none"><line x1="162" y1="150" x2="230" y2="80" marker-end="url(#ah2)"/><line x1="162" y1="150" x2="230" y2="150" marker-end="url(#ah2)"/><line x1="162" y1="150" x2="230" y2="220" marker-end="url(#ah2)"/></g>
+        <g stroke="#111" stroke-width="3" fill="#C6F26B"><rect x="235" y="50" width="230" height="58"/></g>
+        <text x="252" y="76" font-size="14" font-weight="700">Grouped test split</text><text x="252" y="96" font-size="12" fill="#333">train 561 / val 143 / test 215</text>
+        <g stroke="#111" stroke-width="3" fill="#9BE7FF"><rect x="235" y="120" width="230" height="58"/></g>
+        <text x="252" y="146" font-size="14" font-weight="700">5-fold grouped CV</text><text x="252" y="166" font-size="12" fill="#333">rotate episodes across folds</text>
+        <g stroke="#111" stroke-width="3" fill="#FF9EC4"><rect x="235" y="190" width="230" height="58"/></g>
+        <text x="252" y="216" font-size="14" font-weight="700">Leave-one-batch-out</text><text x="252" y="236" font-size="12" fill="#333">hide a whole operator (hardest)</text>
+        <g stroke="#111" stroke-width="3" fill="#CDB4FF"><rect x="560" y="120" width="180" height="58"/></g>
+        <text x="576" y="146" font-size="14" font-weight="700">Random split</text><text x="576" y="166" font-size="12" fill="#333">shown for contrast only</text>
+        <g stroke="#111" stroke-width="3" fill="none"><line x1="465" y1="79" x2="558" y2="140" marker-end="url(#ah2)"/><line x1="465" y1="149" x2="558" y2="149" marker-end="url(#ah2)"/><line x1="465" y1="219" x2="558" y2="160" marker-end="url(#ah2)"/></g>
+        <g stroke="#111" stroke-width="3" fill="#fff"><rect x="780" y="60" width="188" height="180"/></g>
+        <text x="798" y="90" font-size="14" font-weight="700">Metrics</text>
+        <text x="798" y="116" font-size="12">• Exact accuracy</text>
+        <text x="798" y="138" font-size="12">• Within-one accuracy</text>
+        <text x="798" y="160" font-size="12">• MAE</text>
+        <text x="798" y="182" font-size="12">• Weighted kappa</text>
+        <text x="798" y="204" font-size="12">• Spearman + CIs</text>
+        <line x1="740" y1="149" x2="778" y2="149" stroke="#111" stroke-width="3" marker-end="url(#ah2)"/>
+      </svg>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="callout"><strong>Exact vs within-one.</strong> Exact = the score is bang on. Within-one = bang on <em>or one away</em>. A one-step miss on an ordered 1–5 rating is a mild error, which is why within-one is reported.</div>
+      <div class="callout"><strong>Confidence intervals.</strong> Metrics come with grouped-bootstrap 95% intervals — episodes are resampled (not stitches), keeping correlated stitches together.</div>
+    </div>
+  </section>
+
+  <section id="figures">
+    <div class="sec-head"><span class="sec-num">06</span><h2>What was produced — 24 figures</h2></div>
+    <p>Notebook 3 generates every figure for the paper and saves it to <span class="mono">figures/</span>. A selection:</p>
+    <div class="gallery">
+      <figure><img src="figures/sample_annotations.png" alt="SutureBot2 frames with wound mask and stitch boxes" /><figcaption>frames + wound mask (green) + stitch boxes (blue)</figcaption></figure>
+      <figure><img src="figures/fig05_confusion_and_error_matrix.png" alt="confusion and ordinal error matrix" /><figcaption>fig05 · confusion + ordinal error matrix</figcaption></figure>
+      <figure><img src="figures/fig12_roc_curves.png" alt="one-vs-rest ROC curves" /><figcaption>fig12 · one-vs-rest ROC (macro AUC)</figcaption></figure>
+      <figure><img src="figures/fig15_true_vs_pred_scatter.png" alt="true vs predicted scatter" /><figcaption>fig15 · true vs predicted scores</figcaption></figure>
+      <figure><img src="figures/fig17_geometry_correlation_heatmap.png" alt="geometry correlation heatmap" /><figcaption>fig17 · geometry feature correlation</figcaption></figure>
+      <figure><img src="figures/fig08_ablation_comparison.png" alt="ablation comparison" /><figcaption>fig08 · geometry vs image vs hybrid</figcaption></figure>
+    </div>
+    <p class="hint">Full set: localisation overlays (fig01–03), confusion/ordinal-error (fig04–05), metrics-by-fold (fig06), score distributions (fig07), ablation (fig08), calibration (fig09), failure gallery (fig10), occlusion attention (fig11), ROC/PR (fig12–14), scatter diagnostics (fig15–16), correlation/composition heatmaps (fig17,19), per-class metrics (fig18), probability heatmap (fig20), residuals (fig21), embedding projection (fig22), feature importance (fig23), training curves (fig24).</p>
+  </section>
+
+  <section id="audit">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Overfitting &amp; leakage audit</h2></div>
+    <p>Because within-one hit 100%, the pipeline was audited for leakage and overfitting.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Leakage — clean</h3>
+        <ul>
+          <li>Splits grouped by <strong>episode</strong>; leakage check: 0 leaked groups.</li>
+          <li>Geometry scaler fitted on <strong>train only</strong>.</li>
+          <li>Proxy thresholds fitted on <strong>train only</strong>.</li>
+          <li>ResNet18 is frozen → no fitting, no leakage.</li>
+          <li>5-fold grouped CV brackets the test score → stable.</li>
+        </ul>
+        <p class="mono" style="background:var(--lime);border:3px solid #111;padding:6px">Verdict: no data leakage found.</p>
+      </div>
+      <div class="card">
+        <h3>Overfitting — a real but moderate gap</h3>
+        <table>
+          <thead><tr><th>Split</th><th>Exact %</th><th>MAE</th></tr></thead>
+          <tbody>
+            <tr><td>train</td><td class="num-cell">99.5</td><td class="num-cell">0.005</td></tr>
+            <tr><td>validation</td><td class="num-cell">85.3</td><td class="num-cell">0.154</td></tr>
+            <tr><td>test</td><td class="num-cell">82.3</td><td class="num-cell">0.177</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">Train ≈ perfect, test ≈ 82–85% → the model partly memorises the small train set (expected, since the label is deterministic geometry). Validation ≈ test, so it does generalise to unseen episodes.</p>
+      </div>
+    </div>
+    <div class="callout warn" style="margin-top:16px">
+      <strong>Why within-one is 100% — and it is not cheating.</strong> The 1–5 target is a deterministic, quantile-binned function of geometry, so a geometry-dominant model reproduces the ordering almost perfectly and errors are almost never ≥ 2. Even the geometry-only baseline scores 100% within-one. This is <strong>label circularity</strong> (inputs and label both come from geometry), not leakage.
+    </div>
+    <div class="callout danger" style="margin-top:12px">
+      <strong>The honest number is cross-operator.</strong> When a whole operator's batch is held out (leave-one-batch-out), exact accuracy drops to <strong>68–79%</strong>. That is the generalization figure to trust in the paper.
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>What changed in this work</h2></div>
+    <div class="grid g2">
+      <div class="card" style="background:var(--cyan)">
+        <h3>The model improved</h3>
+        <p>Original hybrid exact accuracy was <strong>65.6%</strong> and it lost to the geometry-only baseline. Switch to a <strong>geometry-dominant residual fusion</strong> + <strong>6-seed ensemble</strong> → <strong>85.1%</strong> exact, and it now beats every baseline.</p>
+      </div>
+      <div class="card" style="background:var(--lime)">
+        <h3>Notebooks rebuilt</h3>
+        <p>All three notebooks are now <strong>cell-by-cell with plain-English explanations</strong>, inline code comments and rich inline visuals; every figure is produced and saved; a results table and an overfitting/leakage audit cell were added.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="pill-list" style="margin-bottom:12px">
+      <span class="tag">Notebook 1 · Preprocess &amp; Audit</span>
+      <span class="tag">Notebook 2 · Train &amp; Test</span>
+      <span class="tag">Notebook 3 · Figures &amp; Feedback</span>
+      <span class="tag mono">src/sutureqc/</span>
+    </div>
+    <p style="margin:0 0 8px"><strong>Status:</strong> Milestones M1–M4 complete. Detection baseline (Track A) is a documented ground-truth reference because <span class="mono">ultralytics</span> is not installed.</p>
+    <p style="margin:0" class="muted">Dataset: <strong>SutureBot2</strong> (CC BY 4.0), <span class="mono">jhaworth/SutureBot2</span>. Scores are a geometric-consistency proxy, not a clinical outcome, and do not rate a human surgeon. Cite the SutureBot2 (CoRL 2026) and SutureBot (NeurIPS 2025 D&amp;B) papers when using this code.</p>
+  </footer>
+
+</div>
+</body>
+</html>

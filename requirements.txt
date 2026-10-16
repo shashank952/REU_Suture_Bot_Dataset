@@ -1,0 +1,22 @@
+# Python dependencies for the stitch-level suturing quality project.
+# Installed and verified with: Python 3.12, Windows.
+
+numpy>=2.0
+pandas>=2.2
+scipy>=1.11
+scikit-learn>=1.4
+matplotlib>=3.8
+opencv-python-headless>=4.9
+pillow>=10.0
+pyarrow>=14.0          # required to read LeRobot parquet episodes
+statsmodels>=0.14      # ordinal logistic regression (Track B, preferred)
+torch>=2.2             # hybrid CORAL model (Track C)
+torchvision>=0.17      # frozen ResNet18 image backbone
+
+# Notebook tooling
+nbformat>=5.9
+nbconvert>=7.0
+jupyter_client>=8.0
+
+# Optional: Track A detector. Training is guarded and degrades gracefully.
+# ultralytics>=8.0

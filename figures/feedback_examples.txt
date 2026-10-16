@@ -1,0 +1,35 @@
+Stitch-level feedback examples
+==============================
+Where is the stitch? -> the provided bounding box.
+How good is the stitch? -> the geometric-consistency proxy score below.
+SutureBot2 is a proof-of-concept robotic, ex-vivo wound-closure dataset. Scores shown here are either expert-defined (future work) or a derived geometric-consistency proxy; they are NOT a validated clinical outcome and do NOT rate a human dermatologist's performance.
+
+Stitch score: 2/5
+Confidence: 0.59
+Evidence: stitch bbox barely overlaps the wound; stitch centre sits just outside the wound; spacing between stitches is regular; insertion/exit cross the wound well
+Review flag: no
+
+Stitch score: 2/5
+Confidence: 0.94
+Evidence: stitch bbox barely overlaps the wound; stitch centre sits just outside the wound; spacing between stitches is regular; insertion/exit cross the wound well
+Review flag: no
+
+Stitch score: 2/5
+Confidence: 0.99
+Evidence: stitch bbox barely overlaps the wound; stitch centre lies inside the wound; insertion/exit cross the wound well
+Review flag: no
+
+Stitch score: 4/5
+Confidence: 0.98
+Evidence: stitch bbox partially overlaps the wound; stitch centre lies inside the wound; insertion/exit cross the wound well
+Review flag: no
+
+Stitch score: 5/5
+Confidence: 0.98
+Evidence: stitch bbox partially overlaps the wound; stitch centre lies inside the wound; spacing between stitches is regular; insertion/exit cross the wound well
+Review flag: no
+
+Stitch score: 5/5
+Confidence: 0.90
+Evidence: stitch bbox partially overlaps the wound; stitch centre lies inside the wound; spacing between stitches is regular; insertion/exit cross the wound well
+Review flag: no
